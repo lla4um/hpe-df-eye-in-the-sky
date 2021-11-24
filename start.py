@@ -63,6 +63,12 @@ if settings.DRONE_MODE == "video":
         processes.append(launch_script("pilot.py",arg="drone_"+str(i+1)))
         print("Drone {} simulator started ... ".format(i+1))
         time.sleep(1)
+        
+if settings.DRONE_MODE == "live":
+    for i in range(settings.ACTIVE_DRONES):
+        processes.append(launch_script("pilot.py",arg="drone_"+str(i+1)))
+        print("Drone {} simulator started ... ".format(i+1))
+        time.sleep(1)
 
 
 processes.append(launch_script("dispatcher.py"))
