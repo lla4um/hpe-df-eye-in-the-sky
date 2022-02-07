@@ -32,32 +32,38 @@ def create_stream(stream_path):
     print("creating stream: "+'maprcli stream create -path ' + stream_path + ' -produceperm p -consumeperm p -topicperm p -copyperm p -adminperm p')
     os.system('maprcli stream create -path ' + stream_path + ' -produceperm p -consumeperm p -topicperm p -copyperm p -adminperm p')
 
-def create_table(table_path):
-  if not os.path.islink(table_path):
+def create_and_get_table(connection, table_path):
+  #if not os.path.islink(table_path):
   #maprcli table create -path <path> -tabletype json
-    print("creating table: "+'maprcli table create -path ' + table_path + ' -tabletype json')
-    os.system('maprcli table create -path ' + table_path + ' -tabletype json')
+    #print("creating table: "+'maprcli table create -path ' + table_path + ' -tabletype json')
+    #os.system('maprcli table create -path ' + table_path + ' -tabletype json')
+  if connection.is_store_exists(table_path):
+    data_store = connection.get_store(table_path)
+  else:
+    data_store = connection.create_store(table_path)
+  return data_store
 
-
-os.system("rm -rf " + settings.BASE_POSITIONS_STREAM)
-print("removing any existing data at stream location " + settings.BASE_POSITIONS_STREAM)
+os.system("rm -rf " + settings.POSITIONS_STREAM)
+print("removing any existing data at stream location " + settings.POSITIONS_STREAM)
 create_stream(settings.BASE_POSITIONS_STREAM)
-print("Positions stream created " + settings.BASE_POSITIONS_STREAM )
-os.system("rm -rf " + settings.BASE_PROCESSORS_STREAM)
+print("Positions stream created " + settings.POSITIONS_STREAM )
+os.system("rm -rf " + settings.PROCESSORS_STREAM)
 create_stream(settings.BASE_PROCESSORS_STREAM)
-print("Processors stream created" + settings.BASE_PROCESSORS_STREAM)
-os.system("rm -rf " + settings.BASE_VIDEO_STREAM)
+print("Processors stream created" + settings.PROCESSORS_STREAM)
+os.system("rm -rf " + settings.VIDEO_STREAM)
 create_stream(settings.BASE_VIDEO_STREAM)
-print("Video stream created " + settings.BASE_VIDEO_STREAM)
-os.system("rm -rf " + settings.BASE_RECORDING_STREAM)
+print("Video stream created " + settings.VIDEO_STREAM)
+os.system("rm -rf " + settings.RECORDING_STREAM)
 create_stream(settings.BASE_RECORDING_STREAM)
-print("Recording stream created " + settings.BASE_RECORDING_STREAM)
+print("Recording stream created " + settings.RECORDING_STREAM)
 
 
 print("initializing Ezmeral Data Fabric Tables for drones")
 os.system("rm -rf " + settings.DRONEDATA_TABLE)
 DRONEDATA_TABLE = settings.DRONEDATA_TABLE
+BASE_DRONEDATA_TABLE = settings.BASE_DRONEDATA_TABLE
 ZONES_TABLE = settings.ZONES_TABLE
+BASE_ZONES_TABLE = settings.BASE_ZONES_TABLE
 CLUSTER_IP = settings.CLUSTER_IP
 CLUSTER_NAME = settings.CLUSTER_NAME
 SECURE_MODE = settings.SECURE_MODE
@@ -69,43 +75,73 @@ PEM_FILE = settings.PEM_FILE
 
 
 # Initialize databases
-#create tables with data fabric cli
-create_table(settings.DRONEDATA_TABLE)
-print("DRONEDATA_TABLE table created " + settings.DRONEDATA_TABLE )
-create_table(settings.ZONES_TABLE)
-print("ZONES_TABLE table created " + settings.ZONES_TABLE )
+
+# Get a store and assign it as a DocumentStore object
+#if connection.is_store_exists('/demo_table'):
+#    store = connection.get_store('/demo_table')
+#else:
+#    store = connection.create_store('/demo_table')
+
 
 if SSL_ENABLED:
   print("using ssl connection")
   connection_str = "{}:5678?auth=basic;" \
-                           "ssl=true;" \
+                           "ssl={};" \
                            "sslCA={};" \
                            "sslTargetNameOverride={};" \
                            "user={};" \
-                           "password={}".format(CLUSTER_IP,PEM_FILE,CLUSTER_IP,username,password)
+                           "password={}".format(CLUSTER_IP,SSL_ENABLED,PEM_FILE,CLUSTER_IP,username,password)
 else:
-  connection_str = "{}:5678?auth=basic;user={};password={};ssl=false".format(CLUSTER_IP,username,password)
-print("connection_str: " + connection_str)
-
+  connection_str = "{}:5678?auth=basic;user={};password={};ssl={}".format(CLUSTER_IP,username,password,SSL_ENABLED)
 connection = ConnectionFactory.get_connection(connection_str=connection_str)
-#connection = ConnectionFactory().get_connection(connection_str=connection_str)
-dronedata_table = connection.get_or_create_store(DRONEDATA_TABLE)
-print("creating ezmeral table for drone data at " + DRONEDATA_TABLE)
+
+#delete table tables with posix
+print("removing old dronedata table: " + settings.DRONEDATA_TABLE)
+os.system("rm -rf " + settings.DRONEDATA_TABLE)
+
+#create tables with data fabric ojai rpc call
+dronedata_table = create_and_get_table(connection, BASE_DRONEDATA_TABLE)
+print("DRONEDATA_TABLE table created " + settings.DRONEDATA_TABLE )
+#print(dronedata_table)
 print("creating data entries for DRONE_ID's drone_1, drone_2, and drone_3")
 for DRONE_ID in ["drone_1","drone_2","drone_3"]:
-    dronedata_table.insert_or_replace({"_id":DRONE_ID,
-                                       "flight_data":{"battery":50,"fly_speed":5.0},
-                                       "log_data":"unset",
-                                       "count":0,
-                                       "connection_status":"disconnected",
-                                       "position": {"zone":"home_base", "status":"landed","offset":0.0}})
+    document ={"_id": DRONE_ID,
+                    "flight_data":{
+                                    "battery":50,
+                                    "fly_speed":5.0
+                                   },
+                    "log_data":"unset",
+                    "count":0,
+                    "connection_status":"disconnected",
+                    "position": {
+                                   "zone":"home_base", 
+                                   "status":"landed",
+                                   "offset":0.0
+                                }
+                   }
 
+    new_document = connection.new_document(dictionary=document)
+    dronedata_table.insert_or_replace(new_document)
+    print(new_document.as_json_str())
+    
+print("removing old zones table: " + settings.ZONES_TABLE)
+os.system("rm -rf " + settings.ZONES_TABLE)
 
-zones_table = connection.get_or_create_store(ZONES_TABLE)
-print("creating ezmeral table for drone zone assignmnets at " + ZONES_TABLE)
+zones_table = create_and_get_table(connection, BASE_ZONES_TABLE)
+print("creating ezmeral table for drone zone assignmnets at " + settings.ZONES_TABLE)
 try:
   # Create home_base if doesn't exist
-  zones_table.insert({"_id":"home_base","height":"10","left":"45","top":"45","width":"10","x":"0","y":"0"})
+  document = {"_id":"home_base",
+              "height":"10",
+              "left":"45",
+              "top":"45",
+              "width":"10",
+              "x":"0",
+              "y":"0"
+             }
+  new_document = connection.new_document(dictionary=document)
+  zones_table.insert_or_replace(new_document)
+  print(new_document.as_json_str())
 except:
   pass
 

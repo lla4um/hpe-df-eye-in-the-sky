@@ -9,7 +9,7 @@ Settings files for TEITS demo project
 
 # Authentication settings. 
 SECURE_MODE = False
-SSL_ENABLED = True
+SSL_ENABLED = False
 USERNAME = "mapr"
 PASSWORD = "admin123"
 PEM_FILE = "/opt/mapr/conf/ssl_truststore.pem"
@@ -64,10 +64,15 @@ APPLICATION_FOLDER = ROOT_PATH + "Tello/" # Folder to python app code
 
 # Ezmeral Data Fabric Table names
 ZONES_TABLE = DATA_FOLDER + 'zones_table' # Table for storing informations about predefined zones
+BASE_ZONES_TABLE = BASE_DATA_FOLDER + 'zones_table' # Table for storing informations about predefined zones
 CONTROLS_TABLE = DATA_FOLDER + 'controls_table' # Table for storing informations about interactive flight instructions
+BASE_CONTROLS_TABLE = BASE_DATA_FOLDER + 'controls_table' # Table for storing informations about interactive flight instructions
 DRONEDATA_TABLE = DATA_FOLDER + 'dronedata_table'  # Table for storing informations about each drone
+BASE_DRONEDATA_TABLE = BASE_DATA_FOLDER + 'dronedata_table'  # Table for storing informations about each drone
 PROCESSORS_TABLE = DATA_FOLDER + 'processors_table'  # Table for storing info about processors
+BASE_PROCESSORS_TABLE = BASE_DATA_FOLDER + 'processors_table'  # Table for storing info about processors
 RECORDING_TABLE = DATA_FOLDER + 'recording_table' # Table to excahnge informations while recording
+BASE_RECORDING_TABLE = BASE_DATA_FOLDER + 'recording_table' # Table to excahnge informations while recording
 
 
 # Ezmeral Data Fabric Stream names
