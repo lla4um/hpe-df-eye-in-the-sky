@@ -68,11 +68,62 @@
     Two NICs : one connected to the cluster, one bridged to a WiFi interface to connect the drone.
 
     <hr>
-    <h3>4/ Installation</h3>
+    <h3>4/ Installation Ubuntu</h3>
+    Run as Emeral user
+    	The install has been worked to not run as root. It is assumed you installed Ubuntu and set up a main user. In this case the main user was Ezmeral
+    	
+    4-1/ Central cluster
 
+    Prerequisites:
+    - Ezmeral Data Fabric 6.2 or later
+    - Ezmeral Data Fabric cluster has DB and streams
+
+
+    Installation steps:
+    4-1-1/ Set up user and get github project
+    - go to your Data Fabric as MapR Admin user and add your Ezmeral user with full credentials. Ensure you can log into Data Fabric as Ezmreral user
+    	TODO: use DF CLI to establish user on cluster
+    - on Ubunto Ezmeral user home, git clone https://github.com/lla4um/hpe-df-eye-in-the-sky.git
+    - cd hpe-df-eye-in-the-sky git repo
+    
+    4-1-2/ Configure settings : This is in the settings.py file
+    - DRONE_MODE :
+        - live : use with real drones. Run the pilot.py script on the laptop connected to the drone
+        - video : use without drones. Import the videos you want to stream into the data/recording folder as {{zone_name}}.mp4
+        DRONE_MODE = "video"    # "video" : plays video files, "live": send data from drones.
+        
+    - User Credentials
+    	USERNAME = "ezmeral" # best to NOT to use MapR user
+		PASSWORD = "your-pwd" # TODO: move to user input
+        NO_FLIGHT = True  # when True, the flight commands aren't sent to the drones but live video will still stream in and be processed
+    
+    4-1-3/ install packages and python app to project folder listed in settings
+    - run Setup 
+    	sudo ./setup.sh
+    		This installs all packages needed and all python3 code needed.
+    - python3 configure.py
+    	This will configure all Data Fabric Streams, Tables, and copy the code to the project location in Data Fabrci.
+    	It will also clean out any existing images, recordings, streams, and tables.
+    	Run every time you need to clean up space
+    	Project folder is set in settings to /mapr/your-cluster/projects/teits
+    		# TODO: create volumes for project folder, and this project, 
+    - source init.sh
+    - You are ready to run if no errors occured
+
+
+    4-2/ Edge node: TODO: Not tested yet with ubuntu
+    Prerequisistes:
+    - MapR client configured to access the main cluster
+
+    Installation steps:
+    - go to the project folder using global namespace
+    - source init.sh
+    	
+    <h3>5/ Installation CentOS</h3>
+    This section is outdated. Latest install works on Ubuntu 20.04
     Run as root !
 
-    4-1/ Central cluster
+    5-1/ Central cluster
 
     Prerequisites:
     - MapR 6.1 cluster with DB and streams
@@ -92,7 +143,7 @@
         - video : use without drones. Import the videos you want to stream into the data/recording folder as {{zone_name}}.mp4
 
 
-    4-1/ Edge node
+    5-2/ Edge node
     Prerequisistes:
     - MapR client configured to access the main cluster
 
@@ -101,13 +152,18 @@
     - source init.sh
 
     <hr>
-    <h3>5/ Run the application</h3>
+    
+    <h3>6/ Run the application on Ubuntu</h3>
 
-    5-1/ Launch the main application on the cluster
-    python start.py
+    6-1/ Launch the main application on the cluster
+    using ezmeral user
+    	from the git project repo
+    	source imnit.sh
+    	python3 configure.py # to push andy changes in settings to project folder and to clean stale Data
+    	python3 /mapr/my.cluster.com/projects/teits/start.py # start the demo from the project folder, not the repo but both locations will work.
 
 
-    5-2/ Initial configuration of the drone environment
+    6-2/ Initial configuration of the drone environment
     your drones will be able to move around based on your instructions.
     Their movements are restricted to pre-defined zones.
     These zones have to be created before running the demo :
@@ -116,7 +172,26 @@
 
     Zones
 
-    5-3/ Connect each edge VM to a drone and launch the pilot
+    6-3/ Connect each edge VM to a drone and launch the pilot
+    python pilot.py drone_N (ie. python pilot.py drone_1)
+
+    
+    <h3>7/ Run the application on CentOS</h3>
+
+    7-1/ Launch the main application on the cluster
+    python start.py
+
+
+    7-2/ Initial configuration of the drone environment
+    your drones will be able to move around based on your instructions.
+    Their movements are restricted to pre-defined zones.
+    These zones have to be created before running the demo :
+    - Access the zone editor : {{cluster_ip}}/edit
+    - Create and position the zones for the drones
+
+    Zones
+
+    7-3/ Connect each edge VM to a drone and launch the pilot
     python pilot.py drone_N (ie. python pilot.py drone_1)
 
 
