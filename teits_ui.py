@@ -11,6 +11,7 @@ from random import randint
 from shutil import copyfile
 from copy import deepcopy
 import logging
+import settings
 
 
 from flask import Flask, render_template, request, Response, flash, redirect, url_for
@@ -24,7 +25,8 @@ logging.basicConfig(filename=settings.LOG_FOLDER + "teits_ui.log",
                     level=logging.INFO,
                     format='%(asctime)s :: %(levelname)s :: %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S')
-
+logger = logging.getLogger()
+logger.setLevel(settings.LOG_LEVEL)
 
 #### Kill previous instances
 current_pid = os.getpid()
@@ -32,6 +34,7 @@ all_pids = os.popen("ps aux | grep 'teits_ui.py' | awk '{print $2}'").read().spl
 for pid in all_pids:
     if int(pid) != current_pid:
         logging.info("killing {}".format(pid))
+        #os.kill(pid, signal.SIGKILL)
         os.system("kill -9 {}".format(pid))
 
 
@@ -325,18 +328,8 @@ def land():
 #   drone_id = request.form["drone_id"]
 #   message = {"drone_id":drone_id,"action":"backward"}
 #   positions_producer.produce(drone_id, json.dumps(message))
-#   logging.info("New instruction : {}".format(message))
-#   return "backward order sent for {}".format(drone_id)
-
-
-# @app.route('/flip',methods=["POST"])
-# def flip():
-#   drone_id = request.form["drone_id"]
-#   message = {"drone_id":drone_id,"action":"flip"}
-#   positions_producer.produce(drone_id, json.dumps(message))
-#   logging.info("New instruction : {}".format(message))
-#   return "flip order sent for {}".format(drone_id)
-
+#loging.info("New instruction : {}".format(message))
+#  return "backward order sent for {}".format(drone_id)
 
 
 # Force landing for all drones
@@ -578,4 +571,4 @@ def set_zone_position():
 
 
 
-app.run(debug=True,host='0.0.0.0',port=80)
+app.run(debug=True,host='0.0.0.0',port=settings.UI_PORT)

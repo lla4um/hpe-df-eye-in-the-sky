@@ -110,6 +110,9 @@ if [ "$DISTRIBUTION" == "Ubuntu" ]; then
 		su ezmeral -c "pip3 install imutils"
 		su ezmeral -c "pip3 install opencv-python"
 		su ezmeral -c "pip3 install Pillow"
+		su ezmeral -c "pip3 install tellopy" 
+		su ezmeral -c "pip3 install av" 
+		
 	
 		#su - ezmeral -c "pip2 install --upgrade pip"
 		#su - ezmeral -c "pip2 install maprdb-python-client"

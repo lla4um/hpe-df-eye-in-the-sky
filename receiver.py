@@ -1,3 +1,6 @@
+#! /usr/bin/python
+# TODO: Define this
+
 import time
 from mapr.ojai.storage.ConnectionFactory import ConnectionFactory
 from confluent_kafka import Producer, KafkaError
@@ -19,7 +22,8 @@ logging.basicConfig(filename=settings.LOG_FOLDER + "receiver_{}.log".format(DRON
                     level=logging.INFO,
                     format='%(asctime)s :: %(levelname)s :: %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S')
-
+logger = logging.getLogger()
+logger.setLevel(settings.LOG_LEVEL)
 
 DATA_FOLDER = settings.DATA_FOLDER
 BUFFER_TABLE = DATA_FOLDER + "{}_buffer".format(DRONE_ID)

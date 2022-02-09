@@ -12,6 +12,9 @@ if not os.path.exists(settings.ROOT_PATH):
     os.makedirs(settings.ROOT_PATH)
 print("Root Project directory created " + settings.ROOT_PATH)
 
+
+print("cleaning data folder")
+os.system("rm -rf " + settings.DATA_FOLDER)
 if not os.path.exists(settings.DATA_FOLDER):
     os.makedirs(settings.DATA_FOLDER)
 print("Data directory created " + settings.DATA_FOLDER)
@@ -20,6 +23,8 @@ if not os.path.exists(settings.RECORDING_FOLDER):
     os.makedirs(settings.RECORDING_FOLDER)
 print("Recording directory created " + settings.RECORDING_FOLDER)
 
+print("cleaning log folder")
+os.system("rm -rf " + settings.LOG_FOLDER)
 if not os.path.exists(settings.LOG_FOLDER):
     os.makedirs(settings.LOG_FOLDER)
 print("Log directory created " + settings.LOG_FOLDER)
@@ -100,9 +105,13 @@ print("removing old dronedata table: " + settings.DRONEDATA_TABLE)
 os.system("rm -rf " + settings.DRONEDATA_TABLE)
 
 #create tables with data fabric ojai rpc call
-dronedata_table = create_and_get_table(connection, BASE_DRONEDATA_TABLE)
+dronedata_table = create_and_get_table(connection, settings.BASE_DRONEDATA_TABLE)
 print("DRONEDATA_TABLE table created " + settings.DRONEDATA_TABLE )
-#print(dronedata_table)
+controls_table = create_and_get_table(connection, settings.BASE_CONTROLS_TABLE)
+print("DCONTROLS_TABLE table created " + settings.CONTROLS_TABLE )
+controls_table = create_and_get_table(connection, settings.BASE_PROCESSORS_TABLE)
+print("PROCESSORS_TABLE table created " + settings.PROCESSORS_TABLE )
+
 print("creating data entries for DRONE_ID's drone_1, drone_2, and drone_3")
 for DRONE_ID in ["drone_1","drone_2","drone_3"]:
     document ={"_id": DRONE_ID,
@@ -146,7 +155,11 @@ except:
   pass
 
 print("updating init file")
-os.system("sed -i 's/demo\.mapr\.com/{}/g' init.sh".format(CLUSTER_NAME))
-os.system("sed -i 's/demo\.mapr\.com/{}/g' clean.sh".format(CLUSTER_NAME))
+os.system("sed -i 's/my\.cluster\.com/{}/g' init.sh".format(CLUSTER_NAME))
+os.system("sed -i 's/my\.cluster\.com/{}/g' clean.sh".format(CLUSTER_NAME))
+
+print("update application folder: cp -rfu ./* " + settings.ROOT_PATH )
+os.system("cp -rfu ./* " + settings.ROOT_PATH)
+
 
 print("Configuration complete, initialize environment variables with source init.sh then run the aplication using start.py")

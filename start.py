@@ -34,7 +34,6 @@ for pid in all_pids:
 
 
 def launch_script(script_name,arg=None):
-	print("launching script .py " + script_name + " with arg list = " + arg )
     if arg:
         return subprocess.Popen(["python", settings.ROOT_PATH + script_name,arg,"remote"])
     else:
@@ -46,11 +45,11 @@ def terminate_process(process):
 
 processes = []
 
-
+print("launching teits_ui.py")
 processes.append(launch_script("teits_ui.py"))
 print("User interface started ... ")
 
-# Receivers: launches receiver.py with a drone id  name/tag
+# Receivers
 if settings.REMOTE_MODE:
     for i in range(settings.ACTIVE_DRONES):
         processes.append(launch_script("receiver.py",arg="drone_"+str(i+1)))
@@ -58,7 +57,7 @@ if settings.REMOTE_MODE:
         time.sleep(1)
 
 
-# Pilots: launches pilot.py with a drone id  name/tag
+# Pilots
 if settings.DRONE_MODE == "video":
     for i in range(settings.ACTIVE_DRONES):
         processes.append(launch_script("pilot.py",arg="drone_"+str(i+1)))
@@ -71,11 +70,11 @@ if settings.DRONE_MODE == "live":
         print("Drone {} simulator started ... ".format(i+1))
         time.sleep(1)
 
-# Dispatcher: launches dispatcher.py
+
 processes.append(launch_script("dispatcher.py"))
 print("Dispatcher started ... ")
 
-# Processor: for the number of processors in settings.NUMBER_OF_PROCESSORS, launch processor.py
+
 for i in range(settings.NUMBER_OF_PROCESSORS):
     processes.append(launch_script("processor.py"))
     print("Processor {} started ... ".format(i+1))

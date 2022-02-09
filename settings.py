@@ -6,6 +6,8 @@ Settings files for TEITS demo project
 
 
 """
+#LOGGING LEVEL
+LOG_LEVEL = "INFO" # ERROR, INFO DEBUG" CRITICAL NOTSET WARNING
 
 # Authentication settings. 
 SECURE_MODE = False
@@ -17,8 +19,9 @@ PEM_FILE = "/opt/mapr/conf/ssl_truststore.pem"
 
 ACTIVE_DRONES = 1 # Number of pilot processes launched
 NUMBER_OF_PROCESSORS = 3 # Each processor can analyse 2 to 3 images / second
-DRONE_MODE = "live"    # "video" : plays video files, "live": send data from drones.
-NO_FLIGHT = False  # when True, the flight commands aren't sent to the drones.
+#DRONE_MODE = "live"    # "video" : plays video files, "live": send data from drones.
+DRONE_MODE = "video"    # "video" : plays video files, "live": send data from drones.
+NO_FLIGHT = True  # when True, the flight commands aren't sent to the drones.
 REMOTE_MODE = False # When True, drones pilots are supposed to be far from the main cluster. 
                    # Images are then sent using a direct connection to a DB buffer in the main cluster
 
@@ -95,6 +98,8 @@ ALLOWED_LAG = 2 # Allowed lag between real time events and processed events
 OFFSET_RESET_MODE = 'latest' # latest for running the demo, earliest can be used for replaying existing streams
 DISPLAY_STREAM_NAME = "processed" # source or processed- which default stream is displayed in the UI
 
+#application ui settings
+UI_PORT = 9889
 
 # Drone control keys
 controls = {

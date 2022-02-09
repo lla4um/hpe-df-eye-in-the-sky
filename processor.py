@@ -39,6 +39,8 @@ logging.basicConfig(filename=settings.LOG_FOLDER + "processor_{}.log".format(PRO
                     level=logging.INFO,
                     format='%(asctime)s :: %(levelname)s :: %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S')
+logger = logging.getLogger()
+logger.setLevel(settings.LOG_LEVEL)
 
 
 CLUSTER_NAME = settings.CLUSTER_NAME
@@ -54,6 +56,19 @@ username = settings.USERNAME
 password = settings.PASSWORD
 PEM_FILE = settings.PEM_FILE
 
+
+def create_and_get_table(connection, table_path):
+  #if not os.path.islink(table_path):
+  #maprcli table create -path <path> -tabletype json
+    #print("creating table: "+'maprcli table create -path ' + table_path + ' -tabletype json')
+    #os.system('maprcli table create -path ' + table_path + ' -tabletype json')
+  if connection.is_store_exists(table_path):
+    data_store = connection.get_store(table_path)
+  else:
+    data_store = connection.create_store(table_path)
+  return data_store
+
+
 # Initialize databases
 if SECURE_MODE:
   connection_str = "{}:5678?auth=basic;" \
@@ -66,8 +81,8 @@ else:
   connection_str = "{}:5678?auth=basic;user={};password={};ssl=false".format(CLUSTER_IP,username,password)
   
 connection = ConnectionFactory().get_connection(connection_str=connection_str)
-processors_table = connection.get_or_create_store(PROCESSORS_TABLE)
-dronedata_table = connection.get_or_create_store(DRONEDATA_TABLE)
+processors_table = create_and_get_table(connection, settings.BASE_PROCESSORS_TABLE)
+dronedata_table = create_and_get_table(connection, settings.BASE_DRONEDATA_TABLE)
 
 
 

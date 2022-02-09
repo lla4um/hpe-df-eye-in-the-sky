@@ -44,11 +44,13 @@ import settings
 
 DRONE_ID = sys.argv[1]
 
+
 logging.basicConfig(filename=settings.LOG_FOLDER + "pilot_{}.log".format(DRONE_ID),
                     level=logging.INFO,
                     format='%(asctime)s :: %(levelname)s :: %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S')
-
+logger = logging.getLogger()
+logger.setLevel(settings.LOG_LEVEL)
 
 KILL_ALL = False
 
@@ -74,6 +76,16 @@ def check_stream(stream_path):
     logging.info("stream {} is missing. Exiting.".format(stream_path))
     sys.exit()
 
+def create_and_get_table(connection, table_path):
+  #if not os.path.islink(table_path):
+  #maprcli table create -path <path> -tabletype json
+    #print("creating table: "+'maprcli table create -path ' + table_path + ' -tabletype json')
+    #os.system('maprcli table create -path ' + table_path + ' -tabletype json')
+  if connection.is_store_exists(table_path):
+    data_store = connection.get_store(table_path)
+  else:
+    data_store = connection.create_store(table_path)
+  return data_store
 
 STREAM_FPS = settings.STREAM_FPS
 REPLAYER_FPS = settings.REPLAYER_FPS
@@ -105,6 +117,8 @@ CONTROLS_TABLE = settings.CONTROLS_TABLE
 RECORDING_FOLDER = settings.RECORDING_FOLDER
 
 BUFFER_TABLE = DATA_FOLDER + "{}_buffer".format(DRONE_ID)
+BASE_BUFFER_TABLE = settings.BASE_DATA_FOLDER + "{}_buffer".format(DRONE_ID)
+
 
 current_angle = 0.0
 
@@ -130,10 +144,10 @@ else:
   connection_str = "{}:5678?auth=basic;user={};password={};ssl=false".format(CLUSTER_IP,username,password)# Create database connection
 
 connection = ConnectionFactory().get_connection(connection_str=connection_str)
-zones_table = connection.get_or_create_store(ZONES_TABLE)
+zones_table = create_and_get_table(connection, settings.BASE_ZONES_TABLE)
 
 # initialize drone data
-dronedata_table = connection.get_or_create_store(DRONEDATA_TABLE)
+dronedata_table = create_and_get_table(connection, settings.BASE_DRONEDATA_TABLE)
 dronedata_table.insert_or_replace({"_id":DRONE_ID,
                                    "status":"ready",
                                    "last_command":"land",
@@ -144,12 +158,13 @@ dronedata_table.insert_or_replace({"_id":DRONE_ID,
                                    "position": {"zone":"home_base", "status":"landed","offset":0.0}})
 
 # initialize drone controls
-controls_table = connection.get_or_create_store(CONTROLS_TABLE)
+controls_table = create_and_get_table(connection, settings.BASE_CONTROLS_TABLE)
+#controls_table = connection.get_or_create_store(CONTROLS_TABLE)
 controls_table.insert_or_replace({"_id":DRONE_ID,
                                    "pressed_keys":[]})
 
 
-buffer_table = connection.get_or_create_store(BUFFER_TABLE)
+buffer_table = create_and_get_table(connection, BASE_BUFFER_TABLE)
 
 # test if folders exist and create them if needed
 if not os.path.exists(IMAGE_FOLDER):
@@ -533,7 +548,23 @@ def set_homebase():
 
 def handler(event, sender, data, **args):
     drone = sender
-    if event is drone.EVENT_LOG_DATA:
+
+    if event is drone.EVENT_FLIGHT_DATA:
+        fly_speed = sqrt(data.north_speed*data.north_speed + data.east_speed*data.east_speed);
+        flight_data_doc = {"battery":str(data.battery_percentage),
+                           "fly_speed":str(data.fly_speed),
+                           "wifi_strength":str(data.wifi_strength)}
+        mutation = {"$put": {'flight_data': flight_data_doc}}
+        try:
+            dronedata_table.update(_id=DRONE_ID,mutation=mutation)
+        except Exception as ex:
+            logging.exception("fails")
+
+            if "EXPIRED" in str(ex):
+                logging.info("EXPIRED")
+
+
+    if event is drone.EVENT_LOG:
         log_data_doc = {"mvo":{"vel_x":data.mvo.vel_x,
                                "vel_y":data.mvo.vel_y,
                                "vel_z":data.mvo.vel_z,
@@ -550,19 +581,6 @@ def handler(event, sender, data, **args):
         dronedata_table.update(_id=DRONE_ID,mutation=mutation)
 
 
-    if event is drone.EVENT_FLIGHT_DATA:
-        fly_speed = sqrt(data.north_speed*data.north_speed + data.east_speed*data.east_speed);
-        flight_data_doc = {"battery":str(data.battery_percentage),
-                           "fly_speed":str(data.fly_speed),
-                           "wifi_strength":str(data.wifi_strength)}
-        mutation = {"$put": {'flight_data': flight_data_doc}}
-        try:
-            dronedata_table.update(_id=DRONE_ID,mutation=mutation)
-        except Exception as ex:
-            logging.exception("fails")
-
-            if "EXPIRED" in str(ex):
-                logging.info("EXPIRED")
 
 
 
@@ -595,6 +613,7 @@ def main():
     if DRONE_MODE == "video":
         videoThread = threading.Thread(target=play_video_from_file)
     elif DRONE_MODE == "live":
+        #drone.start_video()
         videoThread = threading.Thread(target=get_drone_video,args=[drone])
 
     videoThread.start()
