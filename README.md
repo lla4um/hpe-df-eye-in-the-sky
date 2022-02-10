@@ -52,7 +52,7 @@
     In "live" mode, this demo is typically run on a laptop using VMs
     In "video" mode, it can be run anywhere.
 
-    This application has been developped on CentOS 7
+    This application has been developped on CentOS 7 originaly but this has been a work to run in ubunto 20.4
 
     Drones used are the Ryze Tello.
 
@@ -60,11 +60,19 @@
     Single VM is usually enough.
     10GB RAM recommended.
     50GB storage.
-    One NIC connected to the host network
+    
+    Run in NAT mode on VM. port forward any Data Fabric ports you may need as well as UDP 9000 and UDP 6038
+    You can use two NIC on the host
+    One host NIC connected to the normal network
+    One host NIC on tello network for drone communications
+    
+    use the single node instgall package and add in ojai and streams clients manualy is a simple way for minimal data fabric configuration
 
     3-2/ Edge nodes
     1GB RAM
     10GB disk
+    
+    
     Two NICs : one connected to the cluster, one bridged to a WiFi interface to connect the drone.
 
     <hr>
@@ -98,13 +106,20 @@
         NO_FLIGHT = True  # when True, the flight commands aren't sent to the drones but live video will still stream in and be processed
     
     4-1-3/ install packages and python app to project folder listed in settings
-    - run Setup 
-    	sudo ./setup.sh
-    		This installs all packages needed and all python3 code needed.
+    - run Setup: the setup is split into two scripts. 
+    	sudo ./sudo-setup.sh
+    		This installs all packages needed on ubuntu.
+    	setup.sh
+    		this installs and updates things in python3 inside th conda environment
     - python3 configure.py
     	This will configure all Data Fabric Streams, Tables, and copy the code to the project location in Data Fabrci.
     	It will also clean out any existing images, recordings, streams, and tables.
     	Run every time you need to clean up space
+    	ISSUE: there was a bug in the OJAI code for python3 when I did this that was resolved by adjusting how the connect string was parsed in the 
+    	mapr/ojai/storage/OJAIConnection.py file. Line 115 in ~/.local/lib/python3.8/site-packages/mapr/ojai/storage/OJAIConnection.py
+    	options_dict = (
+            urllib.parse.parse_qs(urllib.parse.urlparse(connection_str).query, keep_blank_values=False, strict_parsing=False, encoding='utf-8', errors='replace', max_num_fields=None, separator=';'))
+    	You need to set up the projects volume using the MapR user 1st. In configure.py you will find a comented out section due to an issue.
     	Project folder is set in settings to /mapr/your-cluster/projects/teits
     		# TODO: create volumes for project folder, and this project, 
     - source init.sh

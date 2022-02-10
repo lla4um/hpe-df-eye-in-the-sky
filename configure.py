@@ -7,11 +7,28 @@ from mapr.ojai.storage.ConnectionFactory import ConnectionFactory
 
 print("Starting pre-flight checks ... ")
 
-# Create folders
-if not os.path.exists(settings.ROOT_PATH):
-    os.makedirs(settings.ROOT_PATH)
-print("Root Project directory created " + settings.ROOT_PATH)
+#/opt/mapr/bin/maprcli volume create -name p1 -path /p1
+def volume_create(volume_name, volume_path, mount=True):
+  print("creating Volume: "+'maprcli volume create -name ' + volume_name + ' -path ' + volume_path)
+  os.system('maprcli volume create -name ' + volume_name + ' -path ' + volume_path)
+  if mount:
+    time.sleep(2)
+    volume_mount(volume_name, volume_path)
+  
+def volume_mount(volume_name, volume_path):
+  print("mounting Volume: "+'maprcli volume mount -name ' + volume_name + ' -path ' + volume_path)
+  os.system('maprcli volume mount -name ' + volume_name + ' -path ' + volume_path)
 
+# Create folders and Volumes
+# at this time there is a bug and only MapR user can mount volumes
+if not os.path.exists(settings.PROJECTS):
+  print("ERROR: " + settings.PROJECTS + " not found. Create " + settings.PROJECTS + " volume in Data Fabric")
+  exit(1)
+  #volume_create('projects_volume',settings.BASE_PROJECTS)
+
+if not os.path.exists(settings.ROOT_PATH):
+  os.makedirs(settings.ROOT_PATH)
+  print("Root Project directory created " + settings.ROOT_PATH)
 
 print("cleaning data folder")
 os.system("rm -rf " + settings.DATA_FOLDER)
@@ -38,10 +55,6 @@ def create_stream(stream_path):
     os.system('maprcli stream create -path ' + stream_path + ' -produceperm p -consumeperm p -topicperm p -copyperm p -adminperm p')
 
 def create_and_get_table(connection, table_path):
-  #if not os.path.islink(table_path):
-  #maprcli table create -path <path> -tabletype json
-    #print("creating table: "+'maprcli table create -path ' + table_path + ' -tabletype json')
-    #os.system('maprcli table create -path ' + table_path + ' -tabletype json')
   if connection.is_store_exists(table_path):
     data_store = connection.get_store(table_path)
   else:
@@ -81,13 +94,6 @@ PEM_FILE = settings.PEM_FILE
 
 # Initialize databases
 
-# Get a store and assign it as a DocumentStore object
-#if connection.is_store_exists('/demo_table'):
-#    store = connection.get_store('/demo_table')
-#else:
-#    store = connection.create_store('/demo_table')
-
-
 if SSL_ENABLED:
   print("using ssl connection")
   connection_str = "{}:5678?auth=basic;" \
@@ -108,7 +114,7 @@ os.system("rm -rf " + settings.DRONEDATA_TABLE)
 dronedata_table = create_and_get_table(connection, settings.BASE_DRONEDATA_TABLE)
 print("DRONEDATA_TABLE table created " + settings.DRONEDATA_TABLE )
 controls_table = create_and_get_table(connection, settings.BASE_CONTROLS_TABLE)
-print("DCONTROLS_TABLE table created " + settings.CONTROLS_TABLE )
+print("CONTROLS_TABLE table created " + settings.CONTROLS_TABLE )
 controls_table = create_and_get_table(connection, settings.BASE_PROCESSORS_TABLE)
 print("PROCESSORS_TABLE table created " + settings.PROCESSORS_TABLE )
 

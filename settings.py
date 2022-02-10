@@ -19,7 +19,7 @@ PEM_FILE = "/opt/mapr/conf/ssl_truststore.pem"
 
 ACTIVE_DRONES = 1 # Number of pilot processes launched
 NUMBER_OF_PROCESSORS = 3 # Each processor can analyse 2 to 3 images / second
-DRONE_MODE = "live"    # "video" : plays video files, "live": send data from drones.
+DRONE_MODE = "video"    # "video" : plays video files, "live": send data from drones.
 NO_FLIGHT = True  # when True, the flight commands aren't sent to the drones.
 REMOTE_MODE = False # When True, drones pilots are supposed to be far from the main cluster. 
                    # Images are then sent using a direct connection to a DB buffer in the main cluster
@@ -55,6 +55,8 @@ CLUSTER_IP = get_cluster_ip()
 PROJECT_FOLDER = "/teits/" # Project folder from the cluster root
 ROOT_PATH = '/mapr/' + CLUSTER_NAME + '/projects' + PROJECT_FOLDER
 BASE_PATH = '/projects' + PROJECT_FOLDER
+BASE_PROJECTS = '/projects'
+PROJECTS = '/mapr/' + CLUSTER_NAME + '/projects'
 DATA_FOLDER = ROOT_PATH + "data/" # Folder to store the data
 BASE_DATA_FOLDER = BASE_PATH + "data/"
 RECORDING_FOLDER = DATA_FOLDER + "recording/" # Folder to store the recordings

@@ -34,10 +34,11 @@ for pid in all_pids:
 
 
 def launch_script(script_name,arg=None):
+    print(settings.ROOT_PATH + script_name)
     if arg:
-        return subprocess.Popen(["python", settings.ROOT_PATH + script_name,arg,"remote"])
+        return subprocess.Popen(["python3", settings.ROOT_PATH + script_name,arg,"remote"])
     else:
-        return subprocess.Popen(["python", settings.ROOT_PATH + script_name])
+        return subprocess.Popen(["python3", settings.ROOT_PATH + script_name])
 
 def terminate_process(process):
     process.terminate()
