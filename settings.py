@@ -19,8 +19,8 @@ PEM_FILE = "/opt/mapr/conf/ssl_truststore.pem"
 
 ACTIVE_DRONES = 1 # Number of pilot processes launched
 NUMBER_OF_PROCESSORS = 3 # Each processor can analyse 2 to 3 images / second
-DRONE_MODE = "video"    # "video" : plays video files, "live": send data from drones.
-NO_FLIGHT = True  # when True, the flight commands aren't sent to the drones.
+DRONE_MODE = "live"    # "video" : plays video files, "live": send data from drones.
+NO_FLIGHT = False  # when True, the flight commands aren't sent to the drones.
 REMOTE_MODE = False # When True, drones pilots are supposed to be far from the main cluster. 
                    # Images are then sent using a direct connection to a DB buffer in the main cluster
 
@@ -32,6 +32,9 @@ REPLAYER_FPS = 30.0 # FPS replayed from recording
 DIRECTIONAL_MODE = "LINEAR" # LINEAR (only x & y moves), OPTIMIZED (minimizes turns) or FORWARD (turns and forward) or DIRECT (no turn, just moveto the point)
 FORWARD_COEF = 3 # Time taken to move 1m - used to wait between move instructions
 ANGULAR_COEF = 8.0 # Time taken to rotate 360 deg - used to wait between move instructions
+DEFAULT_DISTANCE = 0.5 # distance in meters to travel on lineart comands
+ROTATION_SPEED = 40 # movement number 1 to 100
+
 
 # Utilities
 

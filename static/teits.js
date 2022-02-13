@@ -166,9 +166,6 @@ $("#land_button").click(function(){
     })
 })
 
-
-
-
 $("#reset_button").click(function(){
     $(".drone").each(function(){
         console.log("Reseting drones position");
@@ -228,6 +225,86 @@ $("#patrol_button").click(function(){
     console.log("Start patroling");
     patrol_in_progess = true;
     patrol();
+})
+
+$("#down_button").click(function(){
+    $(".drone").each(function(){
+        console.log("Moving Down");
+        patrol_in_progess = false;
+        drone_id = $(this).attr("id");
+        $.ajax({
+            url: 'down',
+            type: 'post',
+            data: {"drone_id":drone_id},
+            success:function(data){
+                console.log(data)
+            }
+        });
+    })
+})
+
+$("#counter_clockwise_button").click(function(){
+    $(".drone").each(function(){
+        console.log("Moving Counter Clockwise");
+        patrol_in_progess = false;
+        drone_id = $(this).attr("id");
+        $.ajax({
+            url: 'counterclockwise',
+            type: 'post',
+            data: {"drone_id":drone_id},
+            success:function(data){
+                console.log(data)
+            }
+        });
+    })
+})
+
+$("#counter_clockwise360_button").click(function(){
+    $(".drone").each(function(){
+        console.log("Moving Counter Clockwise 360");
+        patrol_in_progess = false;
+        drone_id = $(this).attr("id");
+        $.ajax({
+            url: 'counterclockwise360',
+            type: 'post',
+            data: {"drone_id":drone_id},
+            success:function(data){
+                console.log(data)
+            }
+        });
+    })
+})
+
+$("#clockwise_button").click(function(){
+    $(".drone").each(function(){
+        console.log("Moving Clockwise");
+        patrol_in_progess = false;
+        drone_id = $(this).attr("id");
+        $.ajax({
+            url: 'clockwise',
+            type: 'post',
+            data: {"drone_id":drone_id},
+            success:function(data){
+                console.log(data)
+            }
+        });
+    })
+})
+
+$("#clockwise360_button").click(function(){
+    $(".drone").each(function(){
+        console.log("Moving Clockwise");
+        patrol_in_progess = false;
+        drone_id = $(this).attr("id");
+        $.ajax({
+            url: 'clockwise360',
+            type: 'post',
+            data: {"drone_id":drone_id},
+            success:function(data){
+                console.log(data)
+            }
+        });
+    })
 })
 
 $("#architecture_button").click(function(){

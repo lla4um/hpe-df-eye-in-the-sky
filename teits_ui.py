@@ -59,6 +59,7 @@ SECURE_MODE = settings.SECURE_MODE
 username = settings.USERNAME
 password = settings.PASSWORD
 PEM_FILE = settings.PEM_FILE
+DRONE_MODE = settings.DRONE_MODE
 
 # Initialize databases
 if SECURE_MODE:
@@ -274,6 +275,42 @@ def land():
   logging.info("New instruction : {}".format(message))
   return "Landing order sent for {}".format(drone_id)
 
+# Counter_Clockwise
+@app.route('/counterclockwise',methods=["POST"])
+def counterclockwise():
+  drone_id = request.form["drone_id"]
+  message = {"drone_id":drone_id,"action":"counterclockwise"}
+  positions_producer.produce(drone_id, json.dumps(message))
+  logging.info("New instruction : {}".format(message))
+  return "Counter_Clockwise order sent for {}".format(drone_id)
+
+# Counter_Clockwise
+@app.route('/counterclockwise360',methods=["POST"])
+def counterclockwise360():
+  drone_id = request.form["drone_id"]
+  message = {"drone_id":drone_id,"action":"counterclockwise360"}
+  positions_producer.produce(drone_id, json.dumps(message))
+  logging.info("New instruction : {}".format(message))
+  return "Counter_Clockwise order sent for {}".format(drone_id)  
+  
+# Clockwise
+@app.route('/clockwise',methods=["POST"])
+def clockwise():
+  drone_id = request.form["drone_id"]
+  message = {"drone_id":drone_id,"action":"clockwise"}
+  positions_producer.produce(drone_id, json.dumps(message))
+  logging.info("New instruction : {}".format(message))
+  return "lockwise order sent for {}".format(drone_id)
+  
+# Clockwise360
+@app.route('/clockwise360',methods=["POST"])
+def clockwise360():
+  drone_id = request.form["drone_id"]
+  message = {"drone_id":drone_id,"action":"clockwise360"}
+  positions_producer.produce(drone_id, json.dumps(message))
+  logging.info("New instruction : {}".format(message))
+  return "lockwise order sent for {}".format(drone_id)
+
 
 # # Up .5m
 # @app.route('/up',methods=["POST"])
@@ -284,16 +321,17 @@ def land():
 #   logging.info("New instruction : {}".format(message))
 #   return "Up order sent for {}".format(drone_id)
 
-# # Down .5m
-# @app.route('/down',methods=["POST"])
-# def down():
-#   drone_id = request.form["drone_id"]
-#   message = {"drone_id":drone_id,"action":"down"}
-#   positions_producer.produce(drone_id, json.dumps(message))
-#   logging.info("New instruction : {}".format(message))
-#   return "Down order sent for {}".format(drone_id)
+# Down .5m
+@app.route('/down',methods=["POST"])
+def down():
+  drone_id = request.form["drone_id"]
+  message = {"drone_id":drone_id,"action":"down"}
+  positions_producer.produce(drone_id, json.dumps(message))
+  logging.info("New instruction : {}".format(message))
+  #print(message)
+  return "Down order sent for {}".format(drone_id)
 
-# # Down .5m
+# # Left .5m
 # @app.route('/left',methods=["POST"])
 # def left():
 #   drone_id = request.form["drone_id"]
@@ -301,10 +339,10 @@ def land():
 #   positions_producer.produce(drone_id, json.dumps(message))
 #   logging.info("New instruction : {}".format(message))
 #   return "left order sent for {}".format(drone_id)
-
-
-
-# # Down .5m
+# 
+# 
+# 
+# # Right .5m
 # @app.route('/right',methods=["POST"])
 # def right():
 #   drone_id = request.form["drone_id"]
@@ -312,8 +350,8 @@ def land():
 #   positions_producer.produce(drone_id, json.dumps(message))
 #   logging.info("New instruction : {}".format(message))
 #   return "right order sent for {}".format(drone_id)
-
-# # Down .5m
+# 
+# # Forward .5m
 # @app.route('/forward',methods=["POST"])
 # def forward():
 #   drone_id = request.form["drone_id"]
@@ -321,15 +359,15 @@ def land():
 #   positions_producer.produce(drone_id, json.dumps(message))
 #   logging.info("New instruction : {}".format(message))
 #   return "forward order sent for {}".format(drone_id)
-
-# # Down .5m
+# 
+# # Backward .5m
 # @app.route('/backward',methods=["POST"])
 # def backward():
 #   drone_id = request.form["drone_id"]
 #   message = {"drone_id":drone_id,"action":"backward"}
 #   positions_producer.produce(drone_id, json.dumps(message))
-#loging.info("New instruction : {}".format(message))
-#  return "backward order sent for {}".format(drone_id)
+#   loging.info("New instruction : {}".format(message))
+#   return "backward order sent for {}".format(drone_id)
 
 
 # Force landing for all drones
@@ -479,8 +517,11 @@ def get_count():
 # Returns drone current connection status
 @app.route('/get_connection_status',methods=["POST"])
 def get_connection_status():
-  drone_id = request.form["drone_id"]
-  return dronedata_table.find_by_id(drone_id)["connection_status"]
+  if DRONE_MODE == "live":
+    drone_id = request.form["drone_id"]
+    return dronedata_table.find_by_id(drone_id)["connection_status"]
+  else:
+    return "connected"
 
 
 

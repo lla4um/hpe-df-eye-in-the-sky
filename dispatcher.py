@@ -125,8 +125,6 @@ def main():
                     sent_messages = 0
                     current_sec = int(elapsed_time)
 
-
-
         except Exception as ex:
             logging.exception("failed")
 

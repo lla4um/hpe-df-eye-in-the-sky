@@ -15,6 +15,13 @@ What has to be defined :
 - FPS for the transmitted video
 - the project folder on the cluster
 
+TODO: Things to add
+get_alt_limit
+set_alt_limit(self, limit):
+get_att_limit
+set_att_limit(self, limit)
+
+
 """
 
 import traceback
@@ -101,6 +108,10 @@ ANGULAR_COEF = settings.ANGULAR_COEF # Time taken to rotate 360 deg
 DRONE_MODE = settings.DRONE_MODE
 NO_FLIGHT = settings.NO_FLIGHT 
 DIRECTIONAL_MODE = settings.DIRECTIONAL_MODE
+DEFAULT_DISTANCE = settings.DEFAULT_DISTANCE
+ROTATION_SPEED = settings.ROTATION_SPEED
+
+#STR_DEFAULT_DISTANCE = string_value(DEFAULT_DISTANCE)
 
  
 CLUSTER_NAME = get_cluster_name()
@@ -657,7 +668,6 @@ def main():
                         mutation = {"$put":{"status":"waiting"}}
                         dronedata_table.update(_id=DRONE_ID,mutation=mutation)
 
-
                     if action == "land":
                         logging.info("....................................................  Land")
                         mutation = {"$put":{"status":"busy"}}
@@ -670,7 +680,81 @@ def main():
                         dronedata_table.update(_id=DRONE_ID,mutation=mutation)
                         mutation = {"$put":{"status":"waiting"}}
                         dronedata_table.update(_id=DRONE_ID,mutation=mutation)  
+                        
+                    if action == "down":
+                        print("....................................................  Moving Down")
+                        logging.info("....................................................  Moving Down")
+                        mutation = {"$put":{"status":"busy"}}
+                        dronedata_table.update(_id=DRONE_ID,mutation=mutation)
+                        mutation = {"$put":{"last_command":"down"}}
+                        dronedata_table.update(_id=DRONE_ID,mutation=mutation)
+                        if DRONE_MODE == "live" and not NO_FLIGHT:
+                            drone.down_d(DEFAULT_DISTANCE)
+                        mutation = {"$put":{"position.status":"lowered"}}
+                        dronedata_table.update(_id=DRONE_ID,mutation=mutation)
+                        mutation = {"$put":{"status":"waiting"}}
+                        dronedata_table.update(_id=DRONE_ID,mutation=mutation)
+                        
+                    if action == "counterclockwise":
+                        print("....................................................  Moving counter clockwise")
+                        logging.info("....................................................  Moving counter clockwise")
+                        mutation = {"$put":{"status":"busy"}}
+                        dronedata_table.update(_id=DRONE_ID,mutation=mutation)
+                        mutation = {"$put":{"last_command":"counterclockwise"}}
+                        dronedata_table.update(_id=DRONE_ID,mutation=mutation)
+                        if DRONE_MODE == "live" and not NO_FLIGHT:
+                            drone.counter_clockwise(ROTATION_SPEED)
+                        mutation = {"$put":{"position.status":"counterclockwise"}}
+                        dronedata_table.update(_id=DRONE_ID,mutation=mutation)
+                        mutation = {"$put":{"status":"waiting"}}
+                        dronedata_table.update(_id=DRONE_ID,mutation=mutation)
+                        
+                    if action == "counterclockwise360":
+                        print("....................................................  Moving counter clockwise 360")
+                        logging.info("....................................................  Moving counter clockwise 360")
+                        mutation = {"$put":{"status":"busy"}}
+                        dronedata_table.update(_id=DRONE_ID,mutation=mutation)
+                        mutation = {"$put":{"last_command":"counterclockwise360"}}
+                        dronedata_table.update(_id=DRONE_ID,mutation=mutation)
+                        if DRONE_MODE == "live" and not NO_FLIGHT:
+                            drone.counter_clockwise(ROTATION_SPEED)
+                            time.sleep(15)
+                            drone.clockwise(0)                            
+                        mutation = {"$put":{"position.status":"counterclockwise360"}}
+                        dronedata_table.update(_id=DRONE_ID,mutation=mutation)
+                        mutation = {"$put":{"status":"waiting"}}
+                        dronedata_table.update(_id=DRONE_ID,mutation=mutation)
 
+                    if action == "clockwise":
+                        print("....................................................  Moving clockwise")
+                        logging.info("....................................................  Moving clockwise")
+                        mutation = {"$put":{"status":"busy"}}
+                        dronedata_table.update(_id=DRONE_ID,mutation=mutation)
+                        mutation = {"$put":{"last_command":"clockwise"}}
+                        dronedata_table.update(_id=DRONE_ID,mutation=mutation)
+                        if DRONE_MODE == "live" and not NO_FLIGHT:
+                            drone.clockwise(ROTATION_SPEED)
+                        mutation = {"$put":{"position.status":"clockwise"}}
+                        dronedata_table.update(_id=DRONE_ID,mutation=mutation)
+                        mutation = {"$put":{"status":"waiting"}}
+                        dronedata_table.update(_id=DRONE_ID,mutation=mutation)                        
+
+                    if action == "clockwise360":
+                        print("....................................................  Moving clockwise")
+                        logging.info("....................................................  Moving clockwise")
+                        mutation = {"$put":{"status":"busy"}}
+                        dronedata_table.update(_id=DRONE_ID,mutation=mutation)
+                        mutation = {"$put":{"last_command":"clockwise"}}
+                        dronedata_table.update(_id=DRONE_ID,mutation=mutation)
+                        if DRONE_MODE == "live" and not NO_FLIGHT:
+                            drone.clockwise(ROTATION_SPEED)
+                            time.sleep(15)
+                            drone.clockwise(0)
+                        mutation = {"$put":{"position.status":"clockwise"}}
+                        dronedata_table.update(_id=DRONE_ID,mutation=mutation)
+                        mutation = {"$put":{"status":"waiting"}}
+                        dronedata_table.update(_id=DRONE_ID,mutation=mutation)                        
+                        
                 else:
                     logging.info(".....................................................  Moving ")
                     from_zone = dronedata_table.find_by_id(DRONE_ID)["position"]["zone"]

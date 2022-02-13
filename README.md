@@ -18,7 +18,10 @@
     - ingestion of the video streams
     - processing of the video frames
     - user interface
-
+	-TODO: defined
+	 controls_table  dronedata_table  positions_stream   processors_table  recording_stream  zones_table
+     drone_1_buffer  images(folder)           processors_stream  recording(folder)        video_stream
+     
     Each part uses differents python scripts than can be run on multiple nodes.
 
     2-1/ Ingestion : pilot.py
