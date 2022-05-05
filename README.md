@@ -114,6 +114,7 @@
     		This installs all packages needed on ubuntu.
     	setup.sh
     		this installs and updates things in python3 inside th conda environment
+    - source init.sh
     - python3 configure.py
     	This will configure all Data Fabric Streams, Tables, and copy the code to the project location in Data Fabrci.
     	It will also clean out any existing images, recordings, streams, and tables.
@@ -125,7 +126,6 @@
     	You need to set up the projects volume using the MapR user 1st. In configure.py you will find a comented out section due to an issue.
     	Project folder is set in settings to /mapr/your-cluster/projects/teits
     		# TODO: create volumes for project folder, and this project, 
-    - source init.sh
     - You are ready to run if no errors occured
 
 
