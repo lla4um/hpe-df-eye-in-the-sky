@@ -115,6 +115,7 @@
     	setup.sh
     		this installs and updates things in python3 inside th conda environment
     - source init.sh
+    - create projects volume in data fabric, make "ezmeral" user the owner and give appropriate premisions. should match what is in settings.py
     - python3 configure.py
     	This will configure all Data Fabric Streams, Tables, and copy the code to the project location in Data Fabrci.
     	It will also clean out any existing images, recordings, streams, and tables.
