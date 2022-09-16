@@ -97,13 +97,13 @@ PEM_FILE = settings.PEM_FILE
 if SSL_ENABLED:
   print("using ssl connection")
   connection_str = "{}:5678?auth=basic;" \
-                           "ssl={};" \
+                           "ssl=true;" \
                            "sslCA={};" \
                            "sslTargetNameOverride={};" \
                            "user={};" \
-                           "password={}".format(CLUSTER_IP,SSL_ENABLED,PEM_FILE,CLUSTER_IP,username,password)
+                           "password={}".format(CLUSTER_IP,PEM_FILE,CLUSTER_IP,username,password)
 else:
-  connection_str = "{}:5678?auth=basic;user={};password={};ssl={}".format(CLUSTER_IP,username,password,SSL_ENABLED)
+  connection_str = "{}:5678?auth=basic;user={};password={};ssl=false".format(CLUSTER_IP,username,password)
 connection = ConnectionFactory.get_connection(connection_str=connection_str)
 
 #delete table tables with posix
