@@ -40,6 +40,7 @@ if [ "$DISTRIBUTION" == "Ubuntu" ]; then
 		export PATH="/opt/miniconda/bin:$PATH"
 		
 		pip3 install --upgrade pip
+		pip3 install protobuf==3.20
 		pip3 install maprdb-python-client
 		pip3 install --global-option=build_ext --global-option="--library-dirs=/opt/mapr/lib" --global-option="--include-dirs=/opt/mapr/include/" mapr-streams-python
 		pip3 install numpy
